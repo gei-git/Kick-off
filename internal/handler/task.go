@@ -12,13 +12,12 @@ type TaskHandler struct {
 	service *service.TaskService
 }
 
-func NewTaskHandler(service *service.TaskService) *TaskHandler {
-	return &TaskHandler{service: service}
+func NewTaskHandler(svc *service.TaskService) *TaskHandler {
+	return &TaskHandler{service: svc}
 }
 
 func (h *TaskHandler) CreateTask(c *gin.Context) {
 	var task model.Task
-
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -37,13 +36,10 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 }
 
 func (h *TaskHandler) ListTasks(c *gin.Context) {
-	tasks, err := h.service.ListTask()
+	tasks, err := h.service.ListTasks()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"tasks": tasks,
-	})
+	c.JSON(http.StatusOK, gin.H{"tasks": tasks})
 }

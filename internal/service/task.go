@@ -23,10 +23,9 @@ func (s *TaskService) CreateTask(task *model.Task) (*model.Task, error) {
 	if err := s.repo.Create(task); err != nil {
 		return nil, fmt.Errorf("创建任务失败: %w", err)
 	}
-
 	return task, nil
 }
 
-func (s *TaskService) ListTask() ([]model.Task, error) {
+func (s *TaskService) ListTasks() ([]model.Task, error) {
 	return s.repo.FindAll()
 }
