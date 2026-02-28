@@ -7,7 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/gei-git/Kick-off/internal/config"
+	"github.com/gei-git/Kick-off/internal/handler"
 	"github.com/gei-git/Kick-off/internal/repository"
+	"github.com/gei-git/Kick-off/internal/service"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -47,6 +49,23 @@ func main() {
 	})
 
 	// 后续会加 /api/v1/tasks 等路由
+	// ... 原有数据库初始化代码保持不变 ...
 
+	// 初始化 Service 和 Handler
+	taskService := service.NewTaskService(db)
+	taskHandler := handler.NewTaskHandler(taskService)
+
+	// API 路由组（企业标准 v1）
+	v1 := r.Group("/api/v1")
+	{
+		tasks := v1.Group("/tasks")
+		{
+			tasks.POST("", taskHandler.CreateTask)
+			tasks.GET("", taskHandler.ListTasks)
+		}
+	}
+
+	fmt.Println("🚀 API 服务启动成功！端口:", cfg.ServerPort)
+	r.Run(":" + cfg.ServerPort)
 	r.Run(":4567") // ← 改成 8080
 }

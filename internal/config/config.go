@@ -18,7 +18,7 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	_ = godotenv.Load()
 	cfg := &Config{
-		DBHost:     getEnv("DB_HOST", "localhost"),
+		DBHost:     getEnv("DB_HOST", "192.168.219.134"),
 		DBPort:     getEnv("DB_PORT", "5432"),
 		DBUser:     getEnv("DB_USER", "todo_user"),
 		DBPassword: getEnv("DB_PASSWORD", "todo_pass"),
