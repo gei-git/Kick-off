@@ -8,6 +8,7 @@ import (
 
 	"github.com/gei-git/Kick-off/internal/config"
 	"github.com/gei-git/Kick-off/internal/handler"
+	"github.com/gei-git/Kick-off/internal/middleware"
 	"github.com/gei-git/Kick-off/internal/repository"
 	"github.com/gei-git/Kick-off/internal/service"
 	"gorm.io/driver/postgres"
@@ -52,19 +53,31 @@ func main() {
 	// ... 原有数据库初始化代码保持不变 ...
 
 	// 初始化 Service 和 Handler
+	// 初始化 Service 和 Handler
 	taskService := service.NewTaskService(db)
 	taskHandler := handler.NewTaskHandler(taskService)
+
+	authService := service.NewAuthService(db)
+	authHandler := handler.NewAuthHandler(authService)
 
 	// API 路由组（企业标准 v1）
 	v1 := r.Group("/api/v1")
 	{
+		// Auth 路由（公开，无需登录）
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/register", authHandler.Register)
+			auth.POST("/login", authHandler.Login)
+		}
+
+		// 受保护的任务路由（必须带 JWT Token）
 		tasks := v1.Group("/tasks")
+		tasks.Use(middleware.JWTAuth())
 		{
 			tasks.POST("", taskHandler.CreateTask)
 			tasks.GET("", taskHandler.ListTasks)
 		}
 	}
-
 	fmt.Println("🚀 API 服务启动成功！端口:", cfg.ServerPort)
 	r.Run(":" + cfg.ServerPort)
 	r.Run(":4567") // ← 改成 8080

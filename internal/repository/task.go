@@ -23,6 +23,6 @@ func (r *TaskRepository) Create(task *model.Task) error {
 
 func (r *TaskRepository) FindAll() ([]model.Task, error) {
 	var tasks []model.Task
-	err := r.db.Find(&tasks).Error
+	err := r.db.Preload("User").Find(&tasks).Error // 后续会加 User 关联
 	return tasks, err
 }
