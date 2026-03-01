@@ -14,7 +14,8 @@ type AuthService struct {
 	db *gorm.DB
 }
 
-var JwtSecret = []byte("your-super-secret-key-2026") // 生产环境要放 .env
+// JwtSecret 全局 JWT 密钥（生产环境必须改成 .env！）
+var JwtSecret = []byte("your-super-secret-key-2026-change-in-production-please-use-env")
 
 func NewAuthService(db *gorm.DB) *AuthService {
 	return &AuthService{db: db}
@@ -31,11 +32,9 @@ func (s *AuthService) Register(username, password string) (*model.User, error) {
 		Username: username,
 		Password: string(hashed),
 	}
-
 	if err := s.db.Create(user).Error; err != nil {
 		return nil, err
 	}
-
 	return user, nil
 }
 
@@ -49,14 +48,13 @@ func (s *AuthService) Login(username, password string) (string, error) {
 		return "", fmt.Errorf("密码错误")
 	}
 
+	// 生成 JWT - 强制使用 HS256（HMAC）
 	claims := Claims{
 		UserID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims) // ← 必须是 HS256
 	return token.SignedString(JwtSecret)
-
 }

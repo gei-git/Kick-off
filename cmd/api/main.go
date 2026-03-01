@@ -9,6 +9,7 @@ import (
 	"github.com/gei-git/Kick-off/internal/config"
 	"github.com/gei-git/Kick-off/internal/handler"
 	"github.com/gei-git/Kick-off/internal/middleware"
+	"github.com/gei-git/Kick-off/internal/model"
 	"github.com/gei-git/Kick-off/internal/repository"
 	"github.com/gei-git/Kick-off/internal/service"
 	"gorm.io/driver/postgres"
@@ -28,10 +29,15 @@ func main() {
 		panic("数据库连接失败: " + err.Error())
 	}
 
-	// 自动迁移
+	// 自动迁移（Task + User 都要迁移！）
 	repo := repository.NewTaskRepository(db)
 	if err := repo.AutoMigrate(); err != nil {
 		panic("数据库迁移失败: " + err.Error())
+	}
+
+	// 迁移 User 表
+	if err := db.AutoMigrate(&model.User{}); err != nil {
+		panic("User 表迁移失败: " + err.Error())
 	}
 
 	fmt.Println("✅ 数据库连接成功 + 表迁移完成！")
