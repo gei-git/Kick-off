@@ -29,3 +29,13 @@ func (s *TaskService) CreateTask(task *model.Task) (*model.Task, error) {
 func (s *TaskService) ListTasks() ([]model.Task, error) {
 	return s.repo.FindAll()
 }
+
+func (s *TaskService) ListTasksWithFilter(page, limit int, priority string) ([]model.Task, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+	return s.repo.FindAllWithFilter(page, limit, priority)
+}

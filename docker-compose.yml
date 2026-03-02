@@ -11,5 +11,20 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  
+  api:
+    build: .
+    ports:
+      - "4567:4567"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=todo_user
+      - DB_PASSWORD=todo_pass
+      - DB_NAME=todo_db
+    depends_on:
+      - postgres
 volumes:
   postgres_data:
+
+  

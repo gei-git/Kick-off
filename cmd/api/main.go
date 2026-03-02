@@ -12,6 +12,11 @@ import (
 	"github.com/gei-git/Kick-off/internal/model"
 	"github.com/gei-git/Kick-off/internal/repository"
 	"github.com/gei-git/Kick-off/internal/service"
+
+	_ "github.com/gei-git/Kick-off/docs" // ← swag 生成的文档，必须保留
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -46,6 +51,9 @@ func main() {
 
 	r := gin.Default()
 
+	// Swagger 文档
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// 健康检查端点（企业必备）
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -58,7 +66,6 @@ func main() {
 	// 后续会加 /api/v1/tasks 等路由
 	// ... 原有数据库初始化代码保持不变 ...
 
-	// 初始化 Service 和 Handler
 	// 初始化 Service 和 Handler
 	taskService := service.NewTaskService(db)
 	taskHandler := handler.NewTaskHandler(taskService)
