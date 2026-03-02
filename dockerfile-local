@@ -1,21 +1,19 @@
 # ====================== Builder Stage ======================
-FROM golang:1.24-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
-# 设置 Go 模块代理（新加坡加速必备）
+# 设置 Go 模块代理（新加坡/中国用户必备，加速下载）
 ENV GOPROXY=https://goproxy.cn,direct
-
-# 安装 git
-RUN apk add --no-cache git
 
 WORKDIR /app
 
-# ====================== 自动拉取最新代码 ======================
-RUN git clone --depth 1 https://github.com/gei-git/Kick-off.git .
-
-# 直接 go mod download（不需要 COPY，因为 clone 已经把 go.mod 带来了）
+# 先复制 go.mod 和 go.sum，利用 Docker 层缓存（关键！）
+COPY go.mod go.sum ./
 RUN go mod download
 
-# 编译静态二进制
+# 再复制源代码
+COPY . .
+
+# 编译静态二进制（生产推荐）
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /todo-api ./cmd/api
 
 # ====================== Runtime Stage ======================
@@ -29,4 +27,5 @@ WORKDIR /root/
 COPY --from=builder /todo-api .
 
 EXPOSE 4567
+
 CMD ["./todo-api"]
