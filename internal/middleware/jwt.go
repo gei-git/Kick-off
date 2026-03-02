@@ -18,7 +18,9 @@ func JWTAuth() gin.HandlerFunc {
 			return
 		}
 
+		// 去掉 "Bearer " 前缀
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		// 再 TrimSpace：防止用户多打空格导致解析失败（容错性好）
 		tokenStr = strings.TrimSpace(tokenStr)
 
 		token, err := jwt.ParseWithClaims(tokenStr, &service.Claims{}, func(t *jwt.Token) (interface{}, error) {

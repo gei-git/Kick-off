@@ -34,6 +34,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "注册成功", "user_id": user.ID})
 }
 
+// @Summary 用户登录
+// @Description 登录成功返回 JWT Token
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Failure 401 {object} map[string]string
+// @Router /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req struct {
 		Username string `json:"username" binding:"required"`
